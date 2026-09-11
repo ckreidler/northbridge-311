@@ -1,45 +1,53 @@
 /**
- * Northbridge 311 — ACXD Touchpoint config (example)
+ * Northbridge 311 — public frontend config (example)
  *
  * Copy this file to config.js and replace the REPLACE_WITH_* placeholders.
- * config.js is gitignored so real keys stay off GitHub.
+ * config.js is gitignored.
  *
- * Where to get these values
- * -------------------------
- * In Amazon Connect Customer / Agentic CX Designer (ACXD):
- *   1. Open your deployed conversational application
- *   2. Open the Touchpoint (API Delivery) channel
- *   3. Open Setup instructions
+ * Put only public values here. The browser must never hold ACXD API keys,
+ * deployment keys, AWS access keys, or other long-lived secrets.
  *
- * You will see either:
- *   - Discrete keys: Host, Deployment key, Channel key, API key
- *   - Simplified form: Application URL + API key
+ * chatEndpoint is the HTTPS URL of your StartChatContact API (API Gateway /
+ * Lambda). The URL itself is not a secret, but do not put AWS keys in this file.
  *
- * Application URL shape (typical):
- *   https://apps.nlx.ai/c/{deploymentKey}/{channelKey}-{languageCode}
+ * Where secrets belong
+ * --------------------
+ * Instance access, IAM, and any ACXD credentials live in Lambda environment
+ * variables or AWS Secrets Manager — not in this static site.
  *
- * Also whitelist this page's origin on the channel (for local demo: http://localhost:3000).
+ * Where to get the public IDs
+ * ---------------------------
+ * - chatEndpoint: Invoke URL of the StartChatContact API you deploy
+ *   (see backend/README.md and the official sample:
+ *   https://github.com/amazon-connect/amazon-connect-chat-ui-examples/tree/master/cloudformationTemplates/startChatContactAPI)
+ * - instanceId / contactFlowId: Amazon Connect Customer console (Routing → Flows)
+ * - region: AWS region of that instance (for example us-east-1)
  */
 window.NORTHBRIDGE_311 = {
-  // Discrete Touchpoint keys (Path A — preferred)
-  host: "REPLACE_WITH_HOST",
-  deploymentKey: "REPLACE_WITH_DEPLOYMENT_KEY",
-  channelKey: "REPLACE_WITH_CHANNEL_KEY",
-  apiKey: "REPLACE_WITH_API_KEY",
+  // HTTPS URL of your StartChatContact API Gateway stage (no trailing secrets)
+  chatEndpoint: "REPLACE_WITH_CHAT_ENDPOINT",
 
-  // IETF language tag used by the channel (must match the deployed language)
-  languageCode: "en-US",
+  // Amazon Connect Customer instance UUID
+  instanceId: "REPLACE_WITH_INSTANCE_ID",
 
-  // Optional civic accent passed to Touchpoint theme.accent
+  // Inbound chat contact flow UUID (must invoke the ACXD app)
+  contactFlowId: "REPLACE_WITH_CONTACT_FLOW_ID",
+
+  // AWS region of the Connect instance
+  region: "us-east-1",
+
+  // Display name for the automated assistant
+  assistantName: "Northbridge 311",
+
+  // Civic accent passed to Touchpoint theme.accent
   accent: "#1B4D6E",
 
   /**
-   * Optional simplified form.
-   * If applicationUrl AND apiKey are both filled (not placeholders),
-   * boot.js uses this instead of host / deploymentKey / channelKey.
-   *
-   * Example:
-   *   applicationUrl: "https://apps.nlx.ai/c/YOUR_DEPLOYMENT/YOUR_CHANNEL-en-US",
+   * How the expanded chat is presented:
+   *   "half"         overlay, panel on the right, page dimmed
+   *   "full"         overlay covering the viewport
+   *   "floating"     detached panel; page stays interactive (default)
+   *   "side-by-side" docked right panel; page narrows on wide viewports
    */
-  applicationUrl: "",
+  windowSize: "floating",
 };

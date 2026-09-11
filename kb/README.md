@@ -8,7 +8,7 @@ Fictional City of Northbridge content for upload into an ACXD knowledge base. Ea
 - Keep each file **≤ 1 MB**. These samples are a few kilobytes each.
 - Prefer **many small files** over one large dump so retrieval can pick the right topic.
 - Headings are written as questions or clear labels (`Q:` / `A:`) to help RAG.
-- After upload, **rebuild and redeploy** the ACXD application so Touchpoint sees the new content.
+- After upload, **rebuild and redeploy** the ACXD application so Connect chat (Path B) sees the new content.
 - This city is fictional. Do not treat hours, fees, or phone numbers as real.
 
 ## Files

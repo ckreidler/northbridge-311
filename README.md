@@ -2,21 +2,59 @@
 
 Portfolio demo for a fictional **City of Northbridge 311** front door on Amazon Connect Customer / Agentic CX Designer (ACXD).
 
-This repo is a simple static site plus a small knowledge-base pack. It is meant for nights-and-weekends portfolio work — not a production city website.
+This repo is a static site plus a knowledge-base pack. The **public demo is Path B**: the browser loads Connect Touchpoint and asks your StartChatContact API for short-lived participant credentials. Chris deploys that API; this repo does not provision AWS.
 
-- **Path A (this repo):** the webpage embeds ACXD Touchpoint directly with `@nlxai/touchpoint-ui`. No `StartChatContact` call is required.
-- **Path B (optional later):** website → Amazon Connect chat → Connect flow → ACXD, using `@amazon-connect-touchpoint/web` and `StartChatContact`. See [path-b-connect.html](path-b-connect.html).
+## Architecture (Path B)
 
-## Path A quick start
+```text
+Browser (this static site)
+  → StartChatContact API (API Gateway + Lambda)
+    → Amazon Connect StartChatContact
+      → Contact flow with an Agentic CX block
+        → ACXD application (grounded on kb/)
+```
+
+1. The page loads `@amazon-connect-touchpoint/web` and public IDs from `config.js`.
+2. Touchpoint `POST`s to `chatEndpoint`. Your Lambda calls Connect `StartChatContact` with IAM that never leaves the backend.
+3. The API returns participant credentials (`ContactId`, `ParticipantId`, `ParticipantToken`) wrapped as `{ data: { startChatResult } }`.
+4. The widget uses those short-lived credentials to join the chat. The contact flow must invoke the ACXD app so answers come from the conversational application (and the `kb/` pack you upload there).
+
+**Secrets belong in Lambda environment variables or AWS Secrets Manager** (instance access, IAM role for `connect:StartChatContact`, and any ACXD credentials). They must never appear in `config.js`, `boot.js`, or the GitHub Pages bundle.
+
+```text
+Browser  ──public IDs + chatEndpoint only──►  Static site
+Browser  ──POST StartChatContact (no AWS keys)──►  Your API
+Lambda   ──IAM-signed StartChatContact──►  Amazon Connect
+Connect  ──Agentic CX block──►  ACXD app
+```
+
+Official backend sample (deploy this, or an equivalent you already have):
+
+[amazon-connect-chat-ui-examples / startChatContactAPI](https://github.com/amazon-connect/amazon-connect-chat-ui-examples/tree/master/cloudformationTemplates/startChatContactAPI)
+
+A short operator note lives in [backend/README.md](backend/README.md). This PR does not implement or deploy the Lambda.
+
+## Frontend setup
 
 1. Clone this repository.
-2. Copy the example config and keep real keys out of git:
+2. Copy the example config. Keep real values out of git if you treat the endpoint as environment-specific:
 
    ```bash
    cp config.example.js config.js
    ```
 
-3. Fill `config.js` with values from your **deployed ACXD Touchpoint (API Delivery) channel**.
+3. Fill **public** frontend values in `config.js`:
+
+   | Field | What it is |
+   | --- | --- |
+   | `chatEndpoint` | HTTPS URL of your StartChatContact API (API Gateway invoke URL). Not a secret by itself — still do **not** put AWS keys here. |
+   | `instanceId` | Amazon Connect Customer instance UUID |
+   | `contactFlowId` | Contact flow UUID that starts chat and invokes ACXD |
+   | `region` | AWS region of the instance, e.g. `us-east-1` |
+   | `assistantName` | Label shown for the automated assistant |
+   | `accent` | Theme accent color |
+   | `windowSize` | `floating` (default), `half`, `full`, or `side-by-side` |
+
 4. Serve the folder over HTTP (do not open `index.html` as a `file://` URL):
 
    ```bash
@@ -30,42 +68,29 @@ This repo is a simple static site plus a small knowledge-base pack. It is meant 
    ```
 
 5. Open the URL `serve` prints (usually `http://localhost:3000`).
-6. If keys are still placeholders, the side panel shows a friendly setup message. After you save real keys and refresh, the Touchpoint launcher appears.
+6. If placeholders remain, the side panel asks you to fill `config.js`. After the API is up, CORS allows this origin, and the contact flow reaches ACXD, the Connect Touchpoint launcher appears.
 
 `config.js` is gitignored. `config.example.js` is the committed template.
 
-## Where to get host, keys, and API key
+## CORS
 
-In Amazon Connect Customer / Agentic CX Designer:
+The StartChatContact API **must allow the origins** you actually use, including:
 
-1. Open the conversational application you deployed for this demo.
-2. Open the **Touchpoint** / **API Delivery** channel.
-3. Open **Setup instructions**.
+- Local demo: `http://localhost:3000` (and `http://127.0.0.1:3000` if you open that)
+- GitHub Pages, if you enable it: `https://<github-username>.github.io` and the project URL if the site is served from a subpath
 
-You will typically see either:
+The official CloudFormation sample enables `OPTIONS` with a wildcard origin. If you tighten CORS, list every origin above. With API Gateway `AWS_PROXY`, the Lambda response must also include `Access-Control-Allow-Origin` (and usually `Access-Control-Allow-Headers`) on `POST`.
 
-| Field | What it is |
-| --- | --- |
-| `host` | Touchpoint / runtime host from the channel setup UI |
-| `deploymentKey` | Deployment identifier for the built application |
-| `channelKey` | Identifier for the Touchpoint / API channel |
-| `apiKey` | Channel API key (sent as the `nlx-api-key` header) |
-| `languageCode` | Channel language, usually `en-US` |
+## Contact flow must invoke ACXD
 
-Some setup screens show a single **Application URL** plus API key instead. That URL usually looks like:
+Create or edit the inbound **chat** contact flow used by `contactFlowId`:
 
-```text
-https://apps.nlx.ai/c/{deploymentKey}/{channelKey}-{languageCode}
-```
+1. Start the flow for chat contacts.
+2. Add an **Agentic CX** block that invokes your deployed ACXD application (the one that uses the `kb/` pack).
+3. Handle the block’s success / escalation paths (queue a human specialist when the ACXD app escalates).
+4. Publish the flow and use that flow’s ID in `config.js` (and in Lambda env if the sample template stores it there).
 
-`boot.js` accepts either shape:
-
-- Discrete keys: `host` + `deploymentKey` + `channelKey` + `apiKey`
-- Simplified: `applicationUrl` + `apiKey`
-
-Also allowlist the origin you use to open the page (for local demo, `http://localhost:3000`) on the channel.
-
-Do **not** invent AWS account IDs or paste sample keys from the internet. Use only values from your own deployed channel.
+Until the flow calls ACXD, Connect Touchpoint can start a chat that never reaches the 311 assistant.
 
 ## Upload the knowledge base pack
 
@@ -80,20 +105,25 @@ Typical ACXD upload tips:
 
 ## Security
 
-- Never commit real API keys, channel secrets, or AWS account IDs.
-- `config.js` is listed in `.gitignore` for that reason.
-- Treat the Touchpoint API key like a credential: rotate it if it leaks, and restrict channel allowlists to demo origins.
+- **Never** put ACXD API keys, deployment keys, channel keys, or AWS access keys in `config.js` or any file the browser loads.
+- `config.js` is listed in `.gitignore` so local public IDs stay off GitHub if you prefer.
+- Treat the StartChatContact URL as a public browser endpoint: it should mint **participant** credentials only, with IAM on Lambda, rate limiting / WAF as you see fit.
+- Rotate anything that leaks. Restrict CORS to the GitHub Pages and localhost origins you actually use.
+
+### Path A (not this demo)
+
+Path A embeds ACXD Touchpoint (`@nlxai/touchpoint-ui`) with long-lived channel keys in the page. That is convenient for a private local experiment and is **not** the public demo. Do not commit those keys. This repo’s `index.html` / `boot.js` path is Connect Touchpoint + StartChatContact only.
 
 ## Repo layout
 
 ```text
-index.html            Path A landing page (loads config.js, then boot.js)
+index.html            Path B landing page (config.js, then Connect Touchpoint UMD, then boot.js)
 styles.css            Civic demo styles
-boot.js               Touchpoint create() bootstrap
-config.example.js     Documented placeholders (committed)
-config.js             Local keys (gitignored)
-path-b-connect.html   Optional Path B notes
-kb/                   Sample knowledge-base documents
+boot.js               @amazon-connect-touchpoint/web create() bootstrap
+config.example.js     Public placeholders (committed)
+config.js             Local public IDs (gitignored)
+backend/README.md     Pointer to the official StartChatContact CloudFormation sample
+kb/                   Sample knowledge-base documents for ACXD grounding
 package.json          npm start / npm run dev → npx serve .
 ```
 
