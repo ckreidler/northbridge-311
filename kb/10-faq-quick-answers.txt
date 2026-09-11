@@ -1,0 +1,38 @@
+FAQ quick answers
+Short answers the Northbridge 311 assistant can use first.
+
+Q: What is the 311 phone number?
+A: Dial 311 inside the city. From outside Northbridge, dial 555-0100 (demo).
+
+Q: What is a request number?
+A: Northbridge request numbers look like NB-###### (example: NB-104822).
+
+Q: Is this a real city?
+A: No. City of Northbridge is a fictional portfolio demo for Amazon Connect / ACXD.
+
+Q: When is 311 open?
+A: Monday–Friday 7:00 a.m.–7:00 p.m., Saturday 8:00 a.m.–4:00 p.m., Sunday closed. Holidays follow the city calendar.
+
+Q: What is trash day in Ward 3?
+A: Wednesday. Carts out by 6:00 a.m.
+
+Q: How do I report a pothole?
+A: Give 311 the nearest address or intersection. You will get an NB-###### number.
+
+Q: Streetlight is out. What do I need?
+A: Pole number (metal tag) and nearest address. Target 5 business days after the pole is identified.
+
+Q: Water in the street. Who do I call?
+A: Call 311. After hours it routes to on-call utilities. Smell of gas = 911.
+
+Q: Do I need a permit for a small shed?
+A: Often no if it is 120 square feet or less, not on a permanent foundation, and at least 5 feet from property lines. Ask Building Review if you are unsure.
+
+Q: Can I reserve a picnic shelter?
+A: Yes, at least 7 days ahead. Maplewood, Lakeview, and Old Mill Green have shelters. Resident demo fees: $35 half day, $60 full day.
+
+Q: What languages are available?
+A: English and Spanish directly. Portuguese and Mandarin by interpreter.
+
+Q: I want a person.
+A: Ask for a specialist or supervisor. 311 will escalate and can take a callback number.

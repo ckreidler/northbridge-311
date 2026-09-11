@@ -1,0 +1,9 @@
+{
+  "name": "northbridge-311",
+  "private": true,
+  "description": "City of Northbridge 311 Amazon Connect / ACXD portfolio demo",
+  "scripts": {
+    "start": "npx --yes serve .",
+    "dev": "npx --yes serve ."
+  }
+}

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Path B · Connect-backed chat | Northbridge 311</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="wrap header-inner">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true">NB</span>
+          <div>
+            <p class="eyebrow">City of Northbridge</p>
+            <p class="brand-name">311 Service Center</p>
+          </div>
+        </div>
+        <nav class="site-nav" aria-label="Primary">
+          <a href="index.html">Path A home</a>
+        </nav>
+      </div>
+    </header>
+
+    <p class="demo-banner">
+      Optional Path B note — this page is documentation, not a live Connect widget.
+    </p>
+
+    <main id="main">
+      <div class="wrap layout">
+        <section class="hero-column">
+          <p class="kicker">Path B · Amazon Connect</p>
+          <h1>Website → Connect flow → ACXD</h1>
+          <p class="lede">
+            Path A on the home page talks to ACXD Touchpoint directly. Path B is the
+            contact-center shaped route: the website starts an Amazon Connect chat,
+            Connect runs a flow, and that flow hands the conversation to ACXD.
+          </p>
+
+          <section class="steps">
+            <h2>When to use Path B</h2>
+            <p>
+              Use Path B when the demo should look like a real contact center: queue
+              treatment, hours of operation, and escalation to a human agent all live
+              in Amazon Connect. The browser uses
+              <code>@amazon-connect-touchpoint/web</code> and a backend (or Lambda)
+              that calls <code>StartChatContact</code>.
+            </p>
+            <ol>
+              <li>The page requests a chat session from your backend.</li>
+              <li>The backend calls Amazon Connect <code>StartChatContact</code>.</li>
+              <li>Connect starts the inbound flow and can invoke ACXD.</li>
+              <li>The widget on the page continues the conversation.</li>
+            </ol>
+            <p class="note">
+              This repo does not ship Connect credentials, a StartChatContact proxy,
+              or the Connect web SDK. Keep Path A as the nights-and-weekends demo;
+              add Path B when you want the full website → Connect → ACXD story.
+            </p>
+          </section>
+        </section>
+      </div>
+    </main>
+  </body>
+</html>
