@@ -39,6 +39,9 @@ function publicConfig(settings) {
       instanceId: settings.instanceId.trim(),
       contactFlowId: settings.contactFlowId.trim(),
       region: settings.region.trim(),
+      participantDisplayName: filled(settings.participantDisplayName)
+        ? settings.participantDisplayName.trim()
+        : "Resident",
     };
   }
 
