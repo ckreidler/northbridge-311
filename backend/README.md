@@ -48,6 +48,8 @@ The official sample responds in the shape ChatJS / Touchpoint already understand
 
 If you write your own Lambda, keep that wrapper (or the widget cannot join the chat).
 
+The official sample Lambda requires `body.ParticipantDetails.DisplayName`. Touchpoint sends that value from `participantDisplayName` in `config.js` (`boot.js` defaults it to `"Resident"` when the field is empty or still a placeholder). You can also default `DisplayName` in Lambda if the request body omits it.
+
 The sample also stores `instanceId` / `contactFlowId` as Lambda environment variables. Keep those in sync with `config.js`, and put any additional secrets in Secrets Manager — not in GitHub.
 
 ## CORS

@@ -36,6 +36,10 @@ window.NORTHBRIDGE_311 = {
   // AWS region of the Connect instance
   region: "us-east-1",
 
+  // Customer display name sent as StartChatContact ParticipantDetails.DisplayName
+  // (required by Connect). Not a secret.
+  participantDisplayName: "Resident",
+
   // Display name for the automated assistant
   assistantName: "Northbridge 311",
 
