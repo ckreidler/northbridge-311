@@ -71,6 +71,8 @@ a {
 .site-header {
   background: var(--navy);
   color: #fff;
+  padding-top: max(0.75rem, env(safe-area-inset-top));
+  padding-bottom: 0.75rem;
 }
 
 .header-inner {
